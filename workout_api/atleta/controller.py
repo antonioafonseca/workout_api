@@ -94,6 +94,25 @@ async def get(id: UUID4, db_session: DatabaseDependency) -> AtletaOut:
     
     return atleta
 
+@router.get(
+    '/{name}', 
+    summary='Consulta um Atleta pelo nome',
+    status_code=status.HTTP_200_OK,
+    response_model=AtletaOut,
+)
+async def get(name: str, db_session: DatabaseDependency) -> AtletaOut:
+    atleta: AtletaOut = (
+        await db_session.execute(select(AtletaModel).filter_by(name=name))
+    ).scalars().first()
+
+    if not atleta:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f'Atleta não encontrado com o nome: {name}'
+        )
+    
+    return atleta
+
 
 @router.patch(
     '/{id}', 
